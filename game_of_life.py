@@ -1,5 +1,7 @@
 import random
+import curses
 from time import sleep
+import sys
 
 file = "./Boards/gosper_glider_gun.txt"
 
@@ -22,25 +24,30 @@ def random_state(board_height = 3, board_width = 3):
     return board_state
 
 # Formats the board state and prints it to the terminal
-def render(board_state):
+def render(board_state, stdscr):
     dead = " "
     live = "O"
+    stdscr.clear()
     for column in range(len(board_state[0]) + 1):
-        print("--", end = "")
-    print("-")
+        stdscr.addstr("--")
+    stdscr.addstr("-\n")
 
     for row in range(len(board_state)):
-        print("| ", end = "")
+        stdscr.addstr("| ")
         for column in range(len(board_state[row])):
             if board_state[row][column] == 0:
-                print(dead + " ", end = "")
+                stdscr.addstr(dead + " ")
             else:
-                print(live + " ", end = "")
-        print("|")
+                stdscr.addstr(live + " ")
+        try:
+            stdscr.addstr("|\n")
+        except curses.error:
+            sys.exit("The board is too big for the terminal. Please resize the terminal and rerun the program or choose a smaller board.")
 
     for column in range(len(board_state[0]) + 1):
-        print("--", end = "")
-    print("-")
+        stdscr.addstr("--")
+    stdscr.addstr("-\n")
+    stdscr.refresh()
 
 # Calculates and returns the next board state according to the rules of life
 def next_board_state(initial_board_state):
@@ -110,15 +117,18 @@ def load_board_state(file):
     return board_state
 
 # Runs the Game of Life in a loop
-def run_game(initial_board_state):
-    render(initial_board_state)
+def run_game(initial_board_state, stdscr):
+    render(initial_board_state, stdscr)
     while True:
         following_board_state = next_board_state(initial_board_state)
         initial_board_state = following_board_state
-        render(following_board_state)
+        render(following_board_state, stdscr)
         sleep(0.3)
 
-if __name__ == "__main__":
-    # init_state = random_state(20, 50)
-    init_state = load_board_state(file)
-    run_game(init_state)
+def main(stdscr):
+    if __name__ == "__main__":
+        # init_state = random_state(20, 50)
+        init_state = load_board_state(file)
+        run_game(init_state, stdscr)
+
+curses.wrapper(main)
