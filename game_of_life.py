@@ -1,13 +1,16 @@
 import random
+from time import sleep
+
+file = "./Boards/gosper_glider_gun.txt"
 
 # Creates an array with the given dimensions that is filled with zeros
-def dead_state(board_width = 3 , board_height = 3):
+def dead_state(board_height = 3 , board_width = 3):
     board_state = [[0 for x in range(board_width)] for y in range(board_height)]
     return board_state
 
 # Fills the zeros of a dead_state board with 0s and 1s
-def random_state(board_width = 3, board_height = 3):
-    board_state = dead_state(board_width, board_height)
+def random_state(board_height = 3, board_width = 3):
+    board_state = dead_state(board_height, board_width)
     for row in range(board_height):
         for column in range(board_width):
             random_number = random.random()
@@ -20,6 +23,8 @@ def random_state(board_width = 3, board_height = 3):
 
 # Formats the board state and prints it to the terminal
 def render(board_state):
+    dead = " "
+    live = "O"
     for column in range(len(board_state[0]) + 1):
         print("--", end = "")
     print("-")
@@ -27,7 +32,10 @@ def render(board_state):
     for row in range(len(board_state)):
         print("| ", end = "")
         for column in range(len(board_state[row])):
-            print(str(board_state[row][column]) + " ", end = "")
+            if board_state[row][column] == 0:
+                print(dead + " ", end = "")
+            else:
+                print(live + " ", end = "")
         print("|")
 
     for column in range(len(board_state[0]) + 1):
@@ -73,9 +81,13 @@ def get_next_cell_state(initial_cell_state, number_of_live_neighbors):
             next_cell_state = 1
         elif number_of_live_neighbors > 3: #Overpopulation
             next_cell_state = 0
+        else:
+            next_cell_state = 0
     if initial_cell_state == 0:
         if number_of_live_neighbors == 3: #Reproduction
             next_cell_state = 1
+        else:
+            next_cell_state = 0
 
     return next_cell_state
 
@@ -104,3 +116,9 @@ def run_game(initial_board_state):
         following_board_state = next_board_state(initial_board_state)
         initial_board_state = following_board_state
         render(following_board_state)
+        sleep(0.3)
+
+if __name__ == "__main__":
+    # init_state = random_state(20, 50)
+    init_state = load_board_state(file)
+    run_game(init_state)
