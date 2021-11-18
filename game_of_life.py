@@ -20,19 +20,19 @@ def random_state(board_width = 3, board_height = 3):
 
 # Formats the board state and prints it to the terminal
 def render(board_state):
-    for column in range(len(board_state) + 1):
+    for column in range(len(board_state[0]) + 1):
         print("--", end = "")
-    print()
+    print("-")
 
     for row in range(len(board_state)):
-        print("|", end = "")
+        print("| ", end = "")
         for column in range(len(board_state[row])):
             print(str(board_state[row][column]) + " ", end = "")
         print("|")
 
-    for column in range(len(board_state) + 1):
+    for column in range(len(board_state[0]) + 1):
         print("--", end = "")
-    print()
+    print("-")
 
 # Calculates and returns the next board state according to the rules of life
 def next_board_state(initial_board_state):
@@ -79,6 +79,24 @@ def get_next_cell_state(initial_cell_state, number_of_live_neighbors):
 
     return next_cell_state
 
+# Loads a board state from the given text file and returns it as an array board state
+def load_board_state(file):
+    board_state = []
+    current_row = []
+    lines = []
+    with open(file, "r") as f:
+        while True:
+            c = f.read(1)
+            if not c: # End of file
+                board_state.append(current_row)
+                break
+            if c in ["0", "1"]:
+                current_row.append(int(c))
+            else:
+                board_state.append(current_row[:]) # Stupid list references
+                current_row.clear()
+    return board_state
+
 # Runs the Game of Life in a loop
 def run_game(initial_board_state):
     render(initial_board_state)
@@ -86,11 +104,3 @@ def run_game(initial_board_state):
         following_board_state = next_board_state(initial_board_state)
         initial_board_state = following_board_state
         render(following_board_state)
-
-run_game(
-    [
-        [0,0,0],
-        [1,1,1],
-        [0,0,0]
-    ]
-)
